@@ -6,7 +6,8 @@ RUN apt-get update -y && \
     apt-get install -y \
     build-essential \
     cmake \
-    wget
+    wget \ 
+    git
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
