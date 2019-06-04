@@ -26,11 +26,10 @@ void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float max
 
 
 // Load Lidar points from a given location and store them in a vector
-void loadLidarFromFile(vector<LidarPoint> &lidarPoints, string filename)
-{
+void loadLidarFromFile(vector<LidarPoint> &lidarPoints, string filename) {
     // allocate 4 MB buffer (only ~130*4*4 KB are needed)
     unsigned long num = 1000000;
-    float *data = (float*)malloc(num*sizeof(float));
+    auto *data = (float*)malloc(num*sizeof(float));
     
     // pointers
     float *px = data+0;
@@ -44,7 +43,7 @@ void loadLidarFromFile(vector<LidarPoint> &lidarPoints, string filename)
     num = fread(data,sizeof(float),num,stream)/4;
  
     for (int32_t i=0; i<num; i++) {
-        LidarPoint lpt;
+        LidarPoint lpt{};
         lpt.x = *px; lpt.y = *py; lpt.z = *pz; lpt.r = *pr;
         lidarPoints.push_back(lpt);
         px+=4; py+=4; pz+=4; pr+=4;

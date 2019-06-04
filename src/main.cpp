@@ -1,4 +1,3 @@
-
 /* INCLUDES FOR THIS PROJECT */
 #include <iostream>
 #include <fstream>
@@ -23,33 +22,29 @@
 using namespace std;
 
 /* MAIN PROGRAM */
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     /* INIT VARIABLES AND DATA STRUCTURES */
 
-    // data location
-    string dataPath = "../";
-
-    // camera
-    string imgBasePath = dataPath + "images/";
+    // Camera data
+    string imgBasePath = "../images/";
     string imgPrefix = "KITTI/2011_09_26/image_02/data/000000"; // left camera, color
     string imgFileType = ".png";
-    int imgStartIndex = 0; // first file index to load (assumes Lidar and camera names have identical naming convention)
+    int imgStartIndex = 0;  // first file index to load (assumes LiDAR and camera names have identical naming convention)
     int imgEndIndex = 18;   // last file index to load
     int imgStepWidth = 1; 
-    int imgFillWidth = 4;  // no. of digits which make up the file index (e.g. img-0001.png)
+    int imgFillWidth = 4;   // no. of digits which make up the file index (e.g. img-0001.png)
 
-    // object detection
-    string yoloBasePath = dataPath + "dat/yolo/";
+    // Object detection framework
+    string yoloBasePath = "../dat/yolo/";
     string yoloClassesFile = yoloBasePath + "coco.names";
     string yoloModelConfiguration = yoloBasePath + "yolov3.cfg";
     string yoloModelWeights = yoloBasePath + "yolov3.weights";
 
-    // Lidar
+    // LiDAR data
     string lidarPrefix = "KITTI/2011_09_26/velodyne_points/data/000000";
     string lidarFileType = ".bin";
 
-    // calibration data for camera and lidar
+    // Calibration data for camera and lidar
     cv::Mat P_rect_00(3,4,cv::DataType<double>::type); // 3x4 projection matrix after rectification
     cv::Mat R_rect_00(4,4,cv::DataType<double>::type); // 3x3 rectifying rotation to make image planes co-planar
     cv::Mat RT(4,4,cv::DataType<double>::type); // rotation matrix and translation vector
@@ -72,20 +67,20 @@ int main(int argc, const char *argv[])
     double sensorFrameRate = 10.0 / imgStepWidth; // frames per second for Lidar and camera
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
+    bool bVis = true;            // visualize results
 
     /* MAIN LOOP OVER ALL IMAGES */
 
-    for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex+=imgStepWidth)
-    {
+    for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex += imgStepWidth) {
         /* LOAD IMAGE INTO BUFFER */
 
         // assemble filenames for current index
         ostringstream imgNumber;
         imgNumber << setfill('0') << setw(imgFillWidth) << imgStartIndex + imgIndex;
-        string imgFullFilename = imgBasePath + imgPrefix + imgNumber.str() + imgFileType;
+        std::string imgFullFilename;
+        imgFullFilename.append(imgBasePath).append(imgPrefix).append(imgNumber.str()).append(imgFileType);
 
-        // load image from file 
+        // load color image from file
         cv::Mat img = cv::imread(imgFullFilename);
 
         // push image into data frame buffer
@@ -93,7 +88,13 @@ int main(int argc, const char *argv[])
         frame.cameraImg = img;
         dataBuffer.push_back(frame);
 
-        cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
+        // pop old images
+        if(dataBuffer.size() > dataBufferSize) {
+            dataBuffer.erase(dataBuffer.begin());
+        }
+
+        std::cout << std::endl;
+        std::cout << "#1 : LOAD IMAGE INTO BUFFER done" << std::endl;
 
 
         /* DETECT & CLASSIFY OBJECTS */
@@ -109,7 +110,8 @@ int main(int argc, const char *argv[])
         /* CROP LIDAR POINTS */
 
         // load 3D Lidar points from file
-        string lidarFullFilename = imgBasePath + lidarPrefix + imgNumber.str() + lidarFileType;
+        string lidarFullFilename;
+        lidarFullFilename.append(imgBasePath).append(lidarPrefix).append(imgNumber.str()).append(lidarFileType);
         std::vector<LidarPoint> lidarPoints;
         loadLidarFromFile(lidarPoints, lidarFullFilename);
 

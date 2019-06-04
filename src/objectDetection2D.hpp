@@ -7,7 +7,8 @@
 
 #include "dataStructures.h"
 
-void detectObjects(cv::Mat& img, std::vector<BoundingBox>& bBoxes, float confThreshold, float nmsThreshold, 
-                   std::string basePath, std::string classesFile, std::string modelConfiguration, std::string modelWeights, bool bVis);
+void detectObjects(const cv::Mat& img, std::vector<BoundingBox>& bBoxes, float confThreshold, float nmsThreshold,
+                   const std::string& basePath, const std::string& classesFile,
+                   const std::string& modelConfiguration, const std::string& modelWeights, bool bVis);
 
 #endif /* objectDetection2D_hpp */
