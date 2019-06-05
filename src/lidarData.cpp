@@ -9,14 +9,14 @@
 using namespace std;
 
 // remove Lidar points based on min. and max distance in X, Y and Z
-void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float maxX, float maxY, float minZ, float maxZ, float minR)
-{
+void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float maxX, float maxY, float minZ, float maxZ, float minR) {
     std::vector<LidarPoint> newLidarPts; 
-    for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it) {
-        
-       if( (*it).x>=minX && (*it).x<=maxX && (*it).z>=minZ && (*it).z<=maxZ && (*it).z<=0.0 && abs((*it).y)<=maxY && (*it).r>=minR )  // Check if Lidar point is outside of boundaries
-       {
-           newLidarPts.push_back(*it);
+    for(auto & lidarPoint : lidarPoints) {
+        // Check if Lidar point is outside of boundaries
+        if(lidarPoint.x >= minX && lidarPoint.x <= maxX &&
+        lidarPoint.z >= minZ && lidarPoint.z <= maxZ &&
+        fabs(lidarPoint.y) <= maxY && lidarPoint.r >= minR)  {
+           newLidarPts.push_back(lidarPoint);
        }
     }
 
@@ -26,7 +26,7 @@ void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float max
 
 
 // Load Lidar points from a given location and store them in a vector
-void loadLidarFromFile(vector<LidarPoint> &lidarPoints, string filename) {
+void loadLidarFromFile(vector<LidarPoint> &lidarPoints, const string& filename) {
     // allocate 4 MB buffer (only ~130*4*4 KB are needed)
     unsigned long num = 1000000;
     auto *data = (float*)malloc(num*sizeof(float));
