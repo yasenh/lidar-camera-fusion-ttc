@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <algorithm>
 #include <opencv2/highgui/highgui.hpp>
@@ -19,7 +18,6 @@ void cropLidarPoints(std::vector<LidarPoint> &lidarPoints, float minX, float max
            newLidarPts.push_back(lidarPoint);
        }
     }
-
     lidarPoints = newLidarPts;
 }
 

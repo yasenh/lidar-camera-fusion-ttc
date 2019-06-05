@@ -12,8 +12,8 @@ using namespace std;
 
 
 // Create groups of LiDAR points whose projection into the camera falls into the same bounding box
-void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<LidarPoint> &lidarPoints,
-        float shrinkFactor, cv::Mat &P_rect_xx, cv::Mat &R_rect_xx, cv::Mat &RT) {
+void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, const std::vector<LidarPoint>& lidarPoints,
+        float shrinkFactor, const cv::Mat& P_rect_xx, const cv::Mat& R_rect_xx, const cv::Mat& RT) {
     // loop over all LiDAR points and associate them to a 2D bounding box
     cv::Mat X(4, 1, cv::DataType<double>::type);
     cv::Mat Y(3, 1, cv::DataType<double>::type);
@@ -35,12 +35,12 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
         for (auto it2 = boundingBoxes.begin(); it2 != boundingBoxes.end(); ++it2) {
             // shrink current bounding box slightly to avoid having too many outlier points around the edges
             cv::Rect smallerBox;
-            smallerBox.x = (*it2).roi.x + shrinkFactor * (*it2).roi.width / 2.0;
-            smallerBox.y = (*it2).roi.y + shrinkFactor * (*it2).roi.height / 2.0;
-            smallerBox.width = (*it2).roi.width * (1 - shrinkFactor);
-            smallerBox.height = (*it2).roi.height * (1 - shrinkFactor);
+            smallerBox.x = static_cast<int>(it2->roi.x + shrinkFactor * it2->roi.width / 2.0);
+            smallerBox.y = static_cast<int>(it2->roi.y + shrinkFactor * it2->roi.height / 2.0);
+            smallerBox.width = static_cast<int>(it2->roi.width * (1 - shrinkFactor));
+            smallerBox.height = static_cast<int>(it2->roi.height * (1 - shrinkFactor));
 
-            // check wether point is within current bounding box
+            // check weather point is within current bounding box
             if (smallerBox.contains(pt)) {
                 enclosingBoxes.push_back(it2);
             }
@@ -48,7 +48,7 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
         } // eof loop over all bounding boxes
 
         // check weather point has been enclosed by one or by multiple boxes
-        if (enclosingBoxes.size() == 1) {
+        if (1 == enclosingBoxes.size()) {
             // add LiDAR point to bounding box
             enclosingBoxes[0]->lidarPoints.push_back(lidarPoint);
         }

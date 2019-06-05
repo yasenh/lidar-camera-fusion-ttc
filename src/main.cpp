@@ -136,7 +136,7 @@ int main(int argc, const char *argv[]) {
 
         // Visualize 3D objects
         if(bVis) {
-            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(10, 20), cv::Size(750, 1500), true);
+            show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(10, 20), cv::Size(750, 1500), false);
         }
 
         cout << "#4 : CLUSTER LIDAR POINT CLOUD done" << endl;
