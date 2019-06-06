@@ -141,6 +141,41 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
 }
 
 
-void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame) {
-    // ...
+template<typename KeyType, typename ValueType>
+std::pair<KeyType, ValueType> get_max(const std::map<KeyType, ValueType>& x) {
+    using pairtype = std::pair<KeyType, ValueType>;
+    return *std::max_element(x.begin(), x.end(), [] (const pairtype & p1, const pairtype & p2) {
+        return p1.second < p2.second;
+    });
+}
+
+
+void matchBoundingBoxes(const std::vector<cv::DMatch>& matches, std::map<int, int>& bbBestMatches, const DataFrame& prevFrame, const DataFrame& currFrame) {
+    for (const auto& prevBox : prevFrame.boundingBoxes) {
+        std::map<int, int> m;
+        for (const auto& currBox : currFrame.boundingBoxes) {
+
+            // queryIdx refers to keypoints1 and trainIdx refers to keypoints2
+            for (const auto &match : matches) {
+                const auto &prevKeyPoint = prevFrame.keypoints[match.queryIdx].pt;
+                if (prevBox.roi.contains(prevKeyPoint)) {
+                    const auto &currKeyPoint = currFrame.keypoints[match.trainIdx].pt;
+                    if (currBox.roi.contains(currKeyPoint)) {
+                        if(0 == m.count(currBox.boxID)) {
+                            m[currBox.boxID] = 1;
+                        }
+                        else {
+                            m[currBox.boxID]++;
+                        }
+                    }
+                }
+            } // eof iterating all matches
+        } // eof iterating all current bounding boxes
+
+        auto max=get_max(m);
+
+        bbBestMatches[prevBox.boxID] = max.first;
+        std::cout << "ID Matching: " << prevBox.boxID << "=>" << max.first << std::endl;
+
+    } // eof iterating all previous bounding boxes
 }

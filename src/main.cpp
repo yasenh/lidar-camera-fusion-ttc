@@ -152,10 +152,10 @@ int main(int argc, const char *argv[]) {
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
 
         // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-        string detectorType = "SHITOMASI";
+        string detectorType = "FAST";
 
         // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
-        string descriptorType = "BRISK";
+        string descriptorType = "BRIEF";
 
         // Apply corner detection
         if ("SHITOMASI" == detectorType) {
@@ -203,12 +203,12 @@ int main(int argc, const char *argv[]) {
 
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+            string descriptorTypeForMatching = "DES_BINARY"; // DES_BINARY, DES_HOG
             string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
-                             matches, descriptorType, matcherType, selectorType);
+                             matches, descriptorTypeForMatching, matcherType, selectorType);
 
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
@@ -219,8 +219,11 @@ int main(int argc, const char *argv[]) {
 
             //// STUDENT ASSIGNMENT
             //// TASK FP.1 -> match list of 3D objects (vector<BoundingBox>) between current and previous frame (implement ->matchBoundingBoxes)
+
             map<int, int> bbBestMatches;
-            matchBoundingBoxes(matches, bbBestMatches, *(dataBuffer.end()-2), *(dataBuffer.end()-1)); // associate bounding boxes between current and previous frame using keypoint matches
+            // associate bounding boxes between current and previous frame using keypoint matches
+            matchBoundingBoxes(matches, bbBestMatches, *(dataBuffer.end() - 2), *(dataBuffer.end() - 1));
+
             //// EOF STUDENT ASSIGNMENT
 
             // store matches in current data frame
@@ -232,32 +235,31 @@ int main(int argc, const char *argv[]) {
             /*** COMPUTE TTC ON OBJECT IN FRONT ***/
 
             // loop over all BB match pairs
-            for (auto it1 = (dataBuffer.end() - 1)->bbMatches.begin(); it1 != (dataBuffer.end() - 1)->bbMatches.end(); ++it1)
-            {
+            for (auto it1 = (dataBuffer.end() - 1)->bbMatches.begin(); it1 != (dataBuffer.end() - 1)->bbMatches.end(); it1++) {
                 // find bounding boxes associates with current match
-                BoundingBox *prevBB, *currBB;
-                for (auto it2 = (dataBuffer.end() - 1)->boundingBoxes.begin(); it2 != (dataBuffer.end() - 1)->boundingBoxes.end(); ++it2)
-                {
-                    if (it1->second == it2->boxID) // check wether current match partner corresponds to this BB
-                    {
-                        currBB = &(*it2);
+                BoundingBox *prevBB{}, *currBB{};
+
+                for (auto & boundingBox : (dataBuffer.end() - 2)->boundingBoxes) {
+                    // check weather current match partner corresponds to this BB
+                    if (it1->first == boundingBox.boxID) {
+                        prevBB = &boundingBox;
                     }
                 }
 
-                for (auto it2 = (dataBuffer.end() - 2)->boundingBoxes.begin(); it2 != (dataBuffer.end() - 2)->boundingBoxes.end(); ++it2)
-                {
-                    if (it1->first == it2->boxID) // check wether current match partner corresponds to this BB
-                    {
-                        prevBB = &(*it2);
+                for (auto & boundingBox : (dataBuffer.end() - 1)->boundingBoxes) {
+                    // check weather current match partner corresponds to this BB
+                    if (it1->second == boundingBox.boxID) {
+                        currBB = &boundingBox;
                     }
                 }
 
                 // compute TTC for current match
-                if( currBB->lidarPoints.size()>0 && prevBB->lidarPoints.size()>0 ) // only compute TTC if we have LiDAR points
-                {
+                if(!currBB->lidarPoints.empty() && !prevBB->lidarPoints.empty()) {
+                    // only compute TTC if we have LiDAR points
+
                     //// STUDENT ASSIGNMENT
                     //// TASK FP.2 -> compute time-to-collision based on LiDAR data (implement -> computeTTCLidar)
-                    double ttcLidar; 
+                    double ttcLidar;
                     computeTTCLidar(prevBB->lidarPoints, currBB->lidarPoints, sensorFrameRate, ttcLidar);
                     //// EOF STUDENT ASSIGNMENT
 
@@ -265,17 +267,15 @@ int main(int argc, const char *argv[]) {
                     //// TASK FP.3 -> assign enclosed keypoint matches to bounding box (implement -> clusterKptMatchesWithROI)
                     //// TASK FP.4 -> compute time-to-collision based on camera (implement -> computeTTCCamera)
                     double ttcCamera;
-                    clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);                    
+                    clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
                     //// EOF STUDENT ASSIGNMENT
 
-                    bVis = true;
-                    if (bVis)
-                    {
+                    if (bVis) {
                         cv::Mat visImg = (dataBuffer.end() - 1)->cameraImg.clone();
                         showLidarImgOverlay(visImg, currBB->lidarPoints, P_rect_00, R_rect_00, RT, &visImg);
                         cv::rectangle(visImg, cv::Point(currBB->roi.x, currBB->roi.y), cv::Point(currBB->roi.x + currBB->roi.width, currBB->roi.y + currBB->roi.height), cv::Scalar(0, 255, 0), 2);
-                        
+
                         char str[200];
                         sprintf(str, "TTC LiDAR : %f s, TTC Camera : %f s", ttcLidar, ttcCamera);
                         putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255));
@@ -286,13 +286,9 @@ int main(int argc, const char *argv[]) {
                         cout << "Press key to continue to next frame" << endl;
                         cv::waitKey(0);
                     }
-                    bVis = false;
-
                 } // eof TTC computation
-            } // eof loop over all BB matches            
-
-        }
-
+            } // eof loop over all BB matches
+        } // eof checking 2 images
     } // eof loop over all images
 
     return 0;
