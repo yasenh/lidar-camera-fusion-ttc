@@ -70,6 +70,7 @@ int main(int argc, const char *argv[]) {
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
     bool bVis = true;            // visualize results
+    bool bVisObjectDetection = false; // visualize YOLO detection
 
     double tTotal = 0;
 
@@ -106,7 +107,7 @@ int main(int argc, const char *argv[]) {
         float confThreshold = 0.2;
         float nmsThreshold = 0.4;        
         detectObjects((dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->boundingBoxes, confThreshold, nmsThreshold,
-                      yoloBasePath, yoloClassesFile, yoloModelConfiguration, yoloModelWeights, bVis);
+                      yoloBasePath, yoloClassesFile, yoloModelConfiguration, yoloModelWeights, bVisObjectDetection);
 
         cout << "#2 : DETECT & CLASSIFY OBJECTS done" << endl;
 
@@ -253,7 +254,7 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
-                // compute TTC for current match
+                // compute TTC for current match, and only ego lane object should have projected LiDAR point clouds
                 if(!currBB->lidarPoints.empty() && !prevBB->lidarPoints.empty()) {
                     // only compute TTC if we have LiDAR points
 
@@ -278,7 +279,7 @@ int main(int argc, const char *argv[]) {
 
                         char str[200];
                         sprintf(str, "TTC LiDAR : %f s, TTC Camera : %f s", ttcLidar, ttcCamera);
-                        putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255));
+                        putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0,0,255), 2);
 
                         string windowName = "Final Results : TTC";
                         cv::namedWindow(windowName, 4);

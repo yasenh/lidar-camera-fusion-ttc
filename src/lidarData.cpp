@@ -100,17 +100,17 @@ void showLidarImgOverlay(cv::Mat &img, std::vector<LidarPoint> &lidarPoints, cv:
 
     // find max. x-value
     double maxVal = 0.0; 
-    for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it) {
-        maxVal = maxVal<it->x ? it->x : maxVal;
+    for(auto & lidarPoint : lidarPoints) {
+        maxVal = maxVal<lidarPoint.x ? lidarPoint.x : maxVal;
     }
 
     cv::Mat X(4,1,cv::DataType<double>::type);
     cv::Mat Y(3,1,cv::DataType<double>::type);
-    for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it) {
+    for(auto & lidarPoint : lidarPoints) {
 
-            X.at<double>(0, 0) = it->x;
-            X.at<double>(1, 0) = it->y;
-            X.at<double>(2, 0) = it->z;
+            X.at<double>(0, 0) = lidarPoint.x;
+            X.at<double>(1, 0) = lidarPoint.y;
+            X.at<double>(2, 0) = lidarPoint.z;
             X.at<double>(3, 0) = 1;
 
             Y = P_rect_xx * R_rect_xx * RT * X;
@@ -118,7 +118,7 @@ void showLidarImgOverlay(cv::Mat &img, std::vector<LidarPoint> &lidarPoints, cv:
             pt.x = Y.at<double>(0, 0) / Y.at<double>(0, 2);
             pt.y = Y.at<double>(1, 0) / Y.at<double>(0, 2);
 
-            float val = it->x;
+            float val = lidarPoint.x;
             int red = min(255, (int)(255 * abs((val - maxVal) / maxVal)));
             int green = min(255, (int)(255 * (1 - abs((val - maxVal) / maxVal))));
             cv::circle(overlay, pt, 5, cv::Scalar(0, green, red), -1);

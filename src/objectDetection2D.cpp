@@ -125,6 +125,6 @@ void detectObjects(const cv::Mat& img, std::vector<BoundingBox>& bBoxes, float c
         string windowName = "Object classification";
         cv::namedWindow( windowName, 1 );
         cv::imshow( windowName, visImg );
-        cv::waitKey(0); // wait for key to be pressed
+//        cv::waitKey(0); // wait for key to be pressed
     }
 }
