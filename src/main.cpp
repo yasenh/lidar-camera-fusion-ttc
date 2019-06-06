@@ -1,4 +1,3 @@
-/* INCLUDES FOR THIS PROJECT */
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -38,9 +37,8 @@ void loadCalibrationData(cv::Mat &P_rect_00, cv::Mat &R_rect_00, cv::Mat &RT){
 }
 
 
-/* MAIN PROGRAM */
 int main(int argc, const char *argv[]) {
-    /* INIT VARIABLES AND DATA STRUCTURES */
+    /*** INIT VARIABLES AND DATA STRUCTURES ***/
 
     // Camera data
     string imgBasePath = "../images/";
@@ -73,7 +71,9 @@ int main(int argc, const char *argv[]) {
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
     bool bVis = true;            // visualize results
 
-    /* MAIN LOOP OVER ALL IMAGES */
+    double tTotal = 0;
+
+    /*** MAIN LOOP OVER ALL IMAGES ***/
 
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex += imgStepWidth) {
         /*** LOAD IMAGE INTO BUFFER ***/
@@ -142,10 +142,7 @@ int main(int argc, const char *argv[]) {
         cout << "#4 : CLUSTER LIDAR POINT CLOUD done" << endl;
         
         
-        // REMOVE THIS LINE BEFORE PROCEEDING WITH THE FINAL PROJECT
-        continue; // skips directly to the next image without processing what comes beneath
-
-        /* DETECT IMAGE KEYPOINTS */
+        /*** DETECT IMAGE KEYPOINTS ***/
 
         // convert current image to grayscale
         cv::Mat imgGray;
@@ -153,29 +150,33 @@ int main(int argc, const char *argv[]) {
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
+
+        // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
         string detectorType = "SHITOMASI";
 
-        if (detectorType.compare("SHITOMASI") == 0)
-        {
-            detKeypointsShiTomasi(keypoints, imgGray, false);
+        // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType = "BRISK";
+
+        // Apply corner detection
+        if ("SHITOMASI" == detectorType) {
+            detKeypointsShiTomasi(keypoints, imgGray);
         }
-        else
-        {
-            //...
+        else if ("HARRIS" == detectorType){
+            detKeypointsHarris(keypoints, imgGray);
+        }
+        else {
+            // FAST, BRISK, ORB, AKAZE, SIFT
+            detKeypointsModern(keypoints, imgGray, detectorType);
         }
 
         // optional : limit number of keypoints (helpful for debugging and learning)
         bool bLimitKpts = false;
-        if (bLimitKpts)
-        {
+        if (bLimitKpts) {
             int maxKeypoints = 50;
-
-            if (detectorType.compare("SHITOMASI") == 0)
-            { // there is no response info, so keep the first 50 as they are sorted in descending quality order
-                keypoints.erase(keypoints.begin() + maxKeypoints, keypoints.end());
-            }
+            // there is no response info, so keep the first 50 as they are sorted in descending quality order
+            keypoints.erase(keypoints.begin() + maxKeypoints, keypoints.end());
             cv::KeyPointsFilter::retainBest(keypoints, maxKeypoints);
-            cout << " NOTE: Keypoints have been limited!" << endl;
+            std::cout << "---NOTE: Keypoints have been limited!" << std::endl;
         }
 
         // push keypoints and descriptor for current frame to end of data buffer
@@ -184,10 +185,10 @@ int main(int argc, const char *argv[]) {
         cout << "#5 : DETECT KEYPOINTS done" << endl;
 
 
-        /* EXTRACT KEYPOINT DESCRIPTORS */
+        /*** EXTRACT KEYPOINT DESCRIPTORS ***/
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
 
         // push descriptors for current frame to end of data buffer
@@ -195,16 +196,15 @@ int main(int argc, const char *argv[]) {
 
         cout << "#6 : EXTRACT DESCRIPTORS done" << endl;
 
+        // wait until at least two images have been processed
+        if (dataBuffer.size() > 1) {
 
-        if (dataBuffer.size() > 1) // wait until at least two images have been processed
-        {
-
-            /* MATCH KEYPOINT DESCRIPTORS */
+            /*** MATCH KEYPOINT DESCRIPTORS ***/
 
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
             string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            string selectorType = "SEL_KNN";       // SEL_NN, SEL_KNN
 
             matchDescriptors((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints,
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
@@ -215,8 +215,7 @@ int main(int argc, const char *argv[]) {
 
             cout << "#7 : MATCH KEYPOINT DESCRIPTORS done" << endl;
 
-            
-            /* TRACK 3D OBJECT BOUNDING BOXES */
+            /*** TRACK 3D OBJECT BOUNDING BOXES ***/
 
             //// STUDENT ASSIGNMENT
             //// TASK FP.1 -> match list of 3D objects (vector<BoundingBox>) between current and previous frame (implement ->matchBoundingBoxes)
@@ -230,7 +229,7 @@ int main(int argc, const char *argv[]) {
             cout << "#8 : TRACK 3D OBJECT BOUNDING BOXES done" << endl;
 
 
-            /* COMPUTE TTC ON OBJECT IN FRONT */
+            /*** COMPUTE TTC ON OBJECT IN FRONT ***/
 
             // loop over all BB match pairs
             for (auto it1 = (dataBuffer.end() - 1)->bbMatches.begin(); it1 != (dataBuffer.end() - 1)->bbMatches.end(); ++it1)
