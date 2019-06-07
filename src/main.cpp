@@ -72,8 +72,6 @@ int main(int argc, const char *argv[]) {
     bool bVis = true;            // visualize results
     bool bVisObjectDetection = false; // visualize YOLO detection
 
-    double tTotal = 0;
-
     /*** MAIN LOOP OVER ALL IMAGES ***/
 
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex += imgStepWidth) {
@@ -168,16 +166,6 @@ int main(int argc, const char *argv[]) {
         else {
             // FAST, BRISK, ORB, AKAZE, SIFT
             detKeypointsModern(keypoints, imgGray, detectorType);
-        }
-
-        // optional : limit number of keypoints (helpful for debugging and learning)
-        bool bLimitKpts = false;
-        if (bLimitKpts) {
-            int maxKeypoints = 50;
-            // there is no response info, so keep the first 50 as they are sorted in descending quality order
-            keypoints.erase(keypoints.begin() + maxKeypoints, keypoints.end());
-            cv::KeyPointsFilter::retainBest(keypoints, maxKeypoints);
-            std::cout << "---NOTE: Keypoints have been limited!" << std::endl;
         }
 
         // push keypoints and descriptor for current frame to end of data buffer

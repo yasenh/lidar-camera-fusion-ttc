@@ -56,7 +56,7 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, const std::vec
 }
 
 
-void show3DObjects(std::vector<BoundingBox> &boundingBoxes, const cv::Size& worldSize, const cv::Size& imageSize, bool bWait) {
+void show3DObjects(const std::vector<BoundingBox> &boundingBoxes, const cv::Size& worldSize, const cv::Size& imageSize, bool bWait) {
     // create topview image
     cv::Mat topviewImg(imageSize, CV_8UC3, cv::Scalar(0, 0, 0));
 
@@ -135,9 +135,28 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
 }
 
 
-void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
-                     std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC) {
-    // ...
+void computeTTCLidar(const std::vector<LidarPoint> &lidarPointsPrev,
+                     const std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC) {
+    // auxiliary variables
+    double dT = 1 / frameRate;        // time between two measurements in seconds
+    constexpr double laneWidth = 4.0; // assumed width of the ego lane
+
+    // find closest distance to LiDAR points within ego lane
+    double minXPrev = 1e9, minXCurr = 1e9;
+    for (const auto & it : lidarPointsPrev) {
+        if (abs(it.y) <= laneWidth / 2.0) { // 3D point within ego lane?
+            minXPrev = it.x < minXPrev ? it.x : minXPrev;
+        }
+    }
+
+    for (const auto & it : lidarPointsCurr) {
+        if (abs(it.y) <= laneWidth / 2.0) { // 3D point within ego lane?
+            minXCurr = it.x < minXCurr ? it.x : minXCurr;
+        }
+    }
+
+    // compute TTC from both measurements
+    TTC = minXCurr * dT / (minXPrev - minXCurr);
 }
 
 
