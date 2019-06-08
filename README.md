@@ -52,7 +52,7 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   ![LiDAR TTC-1](./images/4.png)
+   ![LiDAR TTC-2](./images/4.png)
 
    
 
@@ -60,7 +60,7 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/5.png)
+   ![LiDAR TTC-3](./images/5.png)
 
    >In order to filter out these outliers, we implement K-D tree and euclidean cluster in this project. Basically we use all of the projected points to build the K-D tree, and clustering all of the points based on their euclidean distance. Points with large gap (euclidean distance more than certain threshold) will be clustered into separate clusters. And we will only choose the cluster with maximum size to calculate LiDAR based TTC. This is one of the are ways to avoid such errors by post-processing the point cloud, but there will be no guarantee that such problems will never occur in practice.
    >
@@ -80,11 +80,11 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/6.png)
+   ![Camera TTC-1](./images/6.png)
 
    
 
-   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/7.png)
+   ![Camera TTC-2](./images/7.png)
 
    
 
@@ -92,11 +92,11 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/8.png)
+   ![Camera TTC-3](./images/8.png)
 
    ​	
 
-   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/new-group-1.jpg)
+   ![Camera TTC-4](./images/new-group-1.jpg)
 
    
 
