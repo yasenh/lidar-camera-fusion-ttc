@@ -63,6 +63,8 @@ In this final project, you will implement the missing parts in the schematic. To
    ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/5.png)
 
    >In order to filter out these outliers, we implement K-D tree and euclidean cluster in this project. Basically we use all of the projected points to build the K-D tree, and clustering all of the points based on their euclidean distance. Points with large gap (euclidean distance more than certain threshold) will be clustered into separate clusters. And we will only choose the cluster with maximum size to calculate LiDAR based TTC. This is one of the are ways to avoid such errors by post-processing the point cloud, but there will be no guarantee that such problems will never occur in practice.
+   >
+   >This part is implemented in "removeLidarOutlier" and "euclideanCluster" function.
 
    
 
@@ -70,7 +72,7 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   > ​	
+   > In "clusterKptMatchesWithROI" function, we associate a given bounding box with the keypoints it contains. We iterate all of the key-point matches, and if the key-point can be found in the region of interest of our current bounding box, we will save current match to corresponding bounding box structure for calculating the camera based TTC.
 
    ​		
 
@@ -78,11 +80,37 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   > asd
+   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/6.png)
 
    
 
-5. Find examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened.
+   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/7.png)
+
+   
+
+   > We can measure the time to collision by observing relative height change on the image sensor. However when observed closely however, it can be seen that the bounding boxes do not always reflect the true vehicle dimensions and the aspect ratio differs between images. Using bounding box height or width for TTC computation would thus lead to significant estimation errors.
+
+   
+
+   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/8.png)
+
+   ​	
+
+   ![LiDAR TTC-1](/home/yasen/lidar-camera-fusion-ttc/images/new-group-1.jpg)
+
+   
+
+   > Instead of relying on the detection of the vehicle as a whole we now want to analyze its structure on a smaller scale. If were possible to locate uniquely identifiable keypoints that could be tracked from one frame to the next, we could use the distance between all keypoints on the vehicle relative to each other to compute a robust estimate of the height ratio in out TTC equation.
+   >
+   > The ratio of all relative distances between each other can be used to compute a reliable TTC estimate by replacing the height ratio h1 / h0 with the mean or median of all distance ratios dk / dk'.
+   >
+   > However,  computing the mean distance ratio as in the function we just discussed would presumably lead to a faulty calculation of the TTC. A more robust way of computing the average of a dataset with outliers is to use the median instead. 
+   >
+   > This part is implemented in "computeTTCCamera" function.
+
+   
+
+5. Find examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened. If if were possible to locate uniquely identifiable keypoints that could be tracked from one frame to the next, we could use the distance between all keypoints on the vehicle relative to each other to compute a robust estimate of the height ratio in out TTC equation.
 
    
 
