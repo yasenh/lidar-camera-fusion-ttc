@@ -60,11 +60,9 @@ void show3DObjects(const std::vector<BoundingBox> &boundingBoxes, const cv::Size
     // create topview image
     cv::Mat topviewImg(imageSize, CV_8UC3, cv::Scalar(0, 0, 0));
 
-    for(const auto& boundingBox : boundingBoxes) {
-        // create randomized color for current 3D object
-        cv::RNG rng(boundingBox.boxID);
-        cv::Scalar currColor = cv::Scalar(rng.uniform(0,150), rng.uniform(0, 150), rng.uniform(0, 150));
+    cv::Scalar currColor = cv::Scalar(0, 0 , 255);
 
+    for(const auto& boundingBox : boundingBoxes) {
         // plot LiDAR points into top view image
         int top = 1e8, left = 1e8, bottom = 0, right = 0;
         float xwmin = 1e8, ywmin = 1e8, ywmax = -1e8;
@@ -269,7 +267,7 @@ void computeTTCLidar(const std::vector<LidarPoint> &lidarPointsPrev,
     std::cout << "Process current frame..." << std::endl;
     std::vector<LidarPoint> lidarPointsCurrClustered = removeLidarOutlier(lidarPointsCurr, clusterTolerance);
 
-    
+
     for (const auto & it : lidarPointsPrevClustered) {
         if (abs(it.y) <= laneWidth / 2.0) { // 3D point within ego lane?
             minXPrev = it.x < minXPrev ? it.x : minXPrev;
