@@ -73,6 +73,8 @@ In this final project, you will implement the missing parts in the schematic. To
    
 
    > In "clusterKptMatchesWithROI" function, we associate a given bounding box with the keypoints it contains. We iterate all of the key-point matches, and if the key-point can be found in the region of interest of our current bounding box, we will save current match to corresponding bounding box structure for calculating the camera based TTC.
+   >
+   > Also, outlier matches have been removed based on the euclidean distance between them in relation to all the matches in the bounding box.
 
    ​		
 
