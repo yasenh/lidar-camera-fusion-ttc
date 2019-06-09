@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+#include <numeric>
 #include <limits>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -69,8 +70,16 @@ int main(int argc, const char *argv[]) {
     double sensorFrameRate = 10.0 / imgStepWidth; // frames per second for LiDAR and camera
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = true;            // visualize results
+    bool bVis = false;            // visualize results
     bool bVisObjectDetection = false; // visualize YOLO detection
+
+    std::vector<double> ttcCameraVec;
+
+    // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+    string detectorType = "ORB";
+
+    // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+    string descriptorType = "FREAK";
 
     /*** MAIN LOOP OVER ALL IMAGES ***/
 
@@ -149,12 +158,6 @@ int main(int argc, const char *argv[]) {
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-
-        // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-        string detectorType = "FAST";
-
-        // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
-        string descriptorType = "BRIEF";
 
         // Apply corner detection
         if ("SHITOMASI" == detectorType) {
@@ -258,6 +261,7 @@ int main(int argc, const char *argv[]) {
                     double ttcCamera;
                     clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->kptMatches);
                     computeTTCCamera((dataBuffer.end() - 2)->keypoints, (dataBuffer.end() - 1)->keypoints, currBB->kptMatches, sensorFrameRate, ttcCamera);
+                    ttcCameraVec.push_back(ttcCamera);
                     //// EOF STUDENT ASSIGNMENT
 
                     if (bVis) {
@@ -279,6 +283,30 @@ int main(int argc, const char *argv[]) {
             } // eof loop over all BB matches
         } // eof checking 2 images
     } // eof loop over all images
+
+
+    std::cout << std::endl;
+    std::cout << "**************SUMMARY*************" << std::endl;
+    std::cout << detectorType << " + " << descriptorType << std::endl;
+    for (auto ttc : ttcCameraVec) {
+        std::cout << ttc << "   ";
+    }
+    std::cout << std::endl;
+    std::cout << "Max TTC = " << *std::max_element(std::begin(ttcCameraVec), std::end(ttcCameraVec)) <<  std::endl;
+    std::cout << "Min TTC = " << *std::min_element(std::begin(ttcCameraVec), std::end(ttcCameraVec)) <<  std::endl;
+
+    double sum = std::accumulate(ttcCameraVec.begin(), ttcCameraVec.end(), 0.0);
+    double mean = sum / ttcCameraVec.size();
+
+    std::vector<double> diff(ttcCameraVec.size());
+    std::transform(ttcCameraVec.begin(), ttcCameraVec.end(), diff.begin(), [mean](double x) { return x - mean; });
+    double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+    double stdev = std::sqrt(sq_sum / ttcCameraVec.size());
+
+    std::cout << "Mean = " << mean << std::endl;
+    std::cout << "Standard Deviation = " << stdev << std::endl;
+    std::cout << "**********************************" << std::endl;
+
 
     return 0;
 }
