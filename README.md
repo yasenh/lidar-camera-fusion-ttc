@@ -161,58 +161,100 @@ There are several ways that we can improve it:
 
 ## Performance Evaluation 2 - Camera
 
+Based on the and TTC data distribution and combine with our previous [benchmark](<https://github.com/yasenh/SFND_2D_Feature_Tracking>). Here is the top 3 detector / descriptor combinations:
 
+1. FAST + BRIEF
+
+2. FAST + ORB
+
+3. FAST + BRISK
+
+   
 
 #### Average TTC in seconds
 
-| Detectors\Descriptors |  BRISK  |  BRIEF  |      ORB      |  FREAK  |  AKAZE  |  SIFT   |
-| :-------------------: | :-----: | :-----: | :-----------: | :-----: | :-----: | :-----: |
-|       SHITOMASI       | 12.1209 | 11.2653 |    11.4615    | 11.466  |   N/A   | 11.2938 |
-|        HARRIS         | 15.6701 | 62.0714 |    62.2064    | 17.682  |   N/A   | 17.3489 |
-|         FAST          | 12.5592 | 12.5391 |    12.5228    | 12.8902 |   N/A   | 12.8837 |
-|         BRISK         | 12.8156 | 12.447  |    13.3245    | 13.449  |   N/A   | 13.1422 |
-|          ORB          | 13.3861 | 15.4395 |    15.0289    | 16.7056 |   N/A   | 5.01276 |
-|         AKAZE         | 10.7705 | 11.043  |    10.9455    | 10.9082 | 10.9428 | 10.8828 |
-|         SIFT          | 10.7146 | 10.732  | Out of Memory | 10.8749 |   N/A   | 11.0379 |
+| Detectors\Descriptors |  BRISK  |    BRIEF    |      ORB      |  FREAK  |  AKAZE  |    SIFT     |
+| :-------------------: | :-----: | :---------: | :-----------: | :-----: | :-----: | :---------: |
+|       SHITOMASI       | 12.1209 |   11.2653   |    11.4615    | 11.466  |   N/A   |   11.2938   |
+|        HARRIS         | 15.6701 | **62.0714** |  **62.2064**  | 17.682  |   N/A   |   17.3489   |
+|         FAST          | 12.5592 |   12.5391   |    12.5228    | 12.8902 |   N/A   |   12.8837   |
+|         BRISK         | 12.8156 |   12.447    |    13.3245    | 13.449  |   N/A   |   13.1422   |
+|          ORB          | 13.3861 |   15.4395   |    15.0289    | 16.7056 |   N/A   | **5.01276** |
+|         AKAZE         | 10.7705 |   11.043    |    10.9455    | 10.9082 | 10.9428 |   10.8828   |
+|         SIFT          | 10.7146 |   10.732    | Out of Memory | 10.8749 |   N/A   |   11.0379   |
 
 
 
 #### Standard Deviation in seconds
 
-| Detectors\Descriptors |  BRISK  |  BRIEF  |      ORB      |  FREAK  |  AKAZE  |  SIFT   |
-| :-------------------: | :-----: | :-----: | :-----------: | :-----: | :-----: | :-----: |
-|       SHITOMASI       | 3.58203 | 2.44622 |    2.88165    | 2.87166 |   N/A   | 2.17353 |
-|        HARRIS         | 5.38883 | 171.838 |    171.796    | 6.82063 |   N/A   | 6.04847 |
-|         FAST          | 4.04397 | 3.73937 |    3.73738    | 3.97477 |   N/A   | 3.78585 |
-|         BRISK         | 3.24327 | 2.8513  |    3.84271    | 4.82433 |   N/A   | 3.26171 |
-|          ORB          | 3.72932 | 7.79276 |    5.28557    | 24.4952 |   N/A   | 29.2416 |
-|         AKAZE         | 2.26705 | 2.50427 |    2.5179     | 2.40407 | 2.25899 | 2.22889 |
-|         SIFT          | 2.23256 | 2.39566 | Out of Memory | 2.04645 |   N/A   | 2.55962 |
+| Detectors\Descriptors |  BRISK  |    BRIEF    |      ORB      |    FREAK    |  AKAZE  |    SIFT     |
+| :-------------------: | :-----: | :---------: | :-----------: | :---------: | :-----: | :---------: |
+|       SHITOMASI       | 3.58203 |   2.44622   |    2.88165    |   2.87166   |   N/A   |   2.17353   |
+|        HARRIS         | 5.38883 | **171.838** |  **171.796**  |   6.82063   |   N/A   |   6.04847   |
+|         FAST          | 4.04397 |   3.73937   |    3.73738    |   3.97477   |   N/A   |   3.78585   |
+|         BRISK         | 3.24327 |   2.8513    |    3.84271    |   4.82433   |   N/A   |   3.26171   |
+|          ORB          | 3.72932 |   7.79276   |    5.28557    | **24.4952** |   N/A   | **29.2416** |
+|         AKAZE         | 2.26705 |   2.50427   |    2.5179     |   2.40407   | 2.25899 |   2.22889   |
+|         SIFT          | 2.23256 |   2.39566   | Out of Memory |   2.04645   |   N/A   |   2.55962   |
 
 
 
 #### Minimum TTC in seconds
 
-| Detectors\Descriptors |  BRISK  |  BRIEF  |      ORB      |  FREAK   |  AKAZE  |   SIFT   |
-| :-------------------: | :-----: | :-----: | :-----------: | :------: | :-----: | :------: |
-|       SHITOMASI       | 7.82528 | 8.20188 |    7.85682    | 7.98124  |   N/A   | 8.28579  |
-|        HARRIS         | 8.6136  | 6.78412 |    7.20578    | 9.34511  |   N/A   | 6.78412  |
-|         FAST          | 9.21822 | 8.4939  |    8.8245     | 9.44175  |   N/A   | 8.96297  |
-|         BRISK         | 8.89592 | 9.46972 |    9.18967    | 9.35334  |   N/A   | 9.33849  |
-|          ORB          | 9.22398 | 9.14645 |    9.2419     | -27.8105 |   N/A   | -97.2019 |
-|         AKAZE         | 8.28244 | 7.98168 |    8.07032    | 8.46694  | 8.09656 | 7.90815  |
-|         SIFT          | 8.06937 | 7.98048 | Out of Memory |  8.2683  |   N/A   | 8.46509  |
+| Detectors\Descriptors |  BRISK  |  BRIEF  |      ORB      |    FREAK     |  AKAZE  |     SIFT     |
+| :-------------------: | :-----: | :-----: | :-----------: | :----------: | :-----: | :----------: |
+|       SHITOMASI       | 7.82528 | 8.20188 |    7.85682    |   7.98124    |   N/A   |   8.28579    |
+|        HARRIS         | 8.6136  | 6.78412 |    7.20578    |   9.34511    |   N/A   |   6.78412    |
+|         FAST          | 9.21822 | 8.4939  |    8.8245     |   9.44175    |   N/A   |   8.96297    |
+|         BRISK         | 8.89592 | 9.46972 |    9.18967    |   9.35334    |   N/A   |   9.33849    |
+|          ORB          | 9.22398 | 9.14645 |    9.2419     | **-27.8105** |   N/A   | **-97.2019** |
+|         AKAZE         | 8.28244 | 7.98168 |    8.07032    |   8.46694    | 8.09656 |   7.90815    |
+|         SIFT          | 8.06937 | 7.98048 | Out of Memory |    8.2683    |   N/A   |   8.46509    |
 
 
 
 #### Maximum TTC in seconds
 
-| Detectors\Descriptors |  BRISK  |  BRIEF  |      ORB      |  FREAK  |  AKAZE  |  SIFT   |
-| :-------------------: | :-----: | :-----: | :-----------: | :-----: | :-----: | :-----: |
-|       SHITOMASI       | 18.5628 | 16.7548 |    17.4185    | 17.4691 |   N/A   | 15.8739 |
-|        HARRIS         | 25.4426 | 704.671 |    704.671    | 29.3158 |   N/A   | 27.0331 |
-|         FAST          | 25.8856 | 21.4821 |    23.4077    | 25.9251 |   N/A   | 21.8186 |
-|         BRISK         | 22.0756 | 18.2117 |    24.4255    | 29.6687 |   N/A   | 20.7219 |
-|          ORB          |  23.14  | 38.492  |    26.8838    | 91.6054 |   N/A   | 22.6026 |
-|         AKAZE         | 15.1287 | 16.1186 |    16.1617    | 15.6194 | 15.3061 | 15.0655 |
-|         SIFT          | 15.647  | 15.5835 | Out of Memory | 15.2646 |   N/A   | 18.6955 |
+| Detectors\Descriptors |  BRISK  |    BRIEF    |      ORB      |    FREAK    |  AKAZE  |  SIFT   |
+| :-------------------: | :-----: | :---------: | :-----------: | :---------: | :-----: | :-----: |
+|       SHITOMASI       | 18.5628 |   16.7548   |    17.4185    |   17.4691   |   N/A   | 15.8739 |
+|        HARRIS         | 25.4426 | **704.671** |  **704.671**  |   29.3158   |   N/A   | 27.0331 |
+|         FAST          | 25.8856 |   21.4821   |    23.4077    |   25.9251   |   N/A   | 21.8186 |
+|         BRISK         | 22.0756 |   18.2117   |    24.4255    |   29.6687   |   N/A   | 20.7219 |
+|          ORB          |  23.14  |   38.492    |    26.8838    | **91.6054** |   N/A   | 22.6026 |
+|         AKAZE         | 15.1287 |   16.1186   |    16.1617    |   15.6194   | 15.3061 | 15.0655 |
+|         SIFT          | 15.647  |   15.5835   | Out of Memory |   15.2646   |   N/A   | 18.6955 |
+
+
+
+#### Why camera-based TTC estimation is way off in some scenarios?
+
+![Camera PE-1](./images/9.png)
+
+
+
+![Camera PE-2](./images/10.png)
+
+
+
+| TTC (in seconds) | LiDAR  |  Camera  |
+| :--------------: | :----: | :------: |
+|    Scenario 1    | 5.8035 | 10.8997  |
+|    Scenario 2    | 9.3720 | 704.6714 |
+
+
+
+As we can see from the 2 scenarios above, and compare with LiDAR based TTC estimation, there are several reasons that leads to inaccurate camera-based TTC estimation:
+
+- Key-points mismatching, e.g. the key-point detected from turn signal lamp matches to the key-point on the roof in scenario 1. 
+- Sensitive scale change and significant contrast change. In scenario 2, some key-points from the rear part of the roof in previous frame associate with the key-points from front part of the roof in current frame. Part of the reason is due to contrast change from lighting conditions or occlusion. It makes the distance ratio between two frames very close to 1, so our host vehicle and preceding vehicle looks relatively static between 2 frames and our TTL turns out to be a pretty large value at the end.
+
+
+
+There are several ways that we can improve it:
+
+- Use more complex detector/descriptor combinations, e.g. SIFT, SIFT uses the Euclidean distance between two feature vectors as the similarity criteria of the two key points and uses the nearest neighbor algorithm to match each other. These kind of detector/descriptor is more accurate than any other descriptors and able to provide rotation and scale invariant. 
+- Fuse with LiDAR sensor, so that camera can provide more semantic information, such as key-points and matches between multiple frames, and LiDAR and provide more accurate direct distance measurement.
+- Compare multiple frames instead of only considering 2 consecutive frames.
+- Add Kalman filter to tracking TTC by minimalizing covariance
+

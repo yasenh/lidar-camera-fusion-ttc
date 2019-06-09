@@ -70,16 +70,17 @@ int main(int argc, const char *argv[]) {
     double sensorFrameRate = 10.0 / imgStepWidth; // frames per second for LiDAR and camera
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
-    bool bVis = false;            // visualize results
+    bool bVis = true;            // visualize results
     bool bVisObjectDetection = false; // visualize YOLO detection
+    bool bVisMatching = false; // visualize matches
 
     std::vector<double> ttcCameraVec;
 
     // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
-    string detectorType = "ORB";
+    string detectorType = "FAST";
 
     // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
-    string descriptorType = "FREAK";
+    string descriptorType = "BRIEF";
 
     /*** MAIN LOOP OVER ALL IMAGES ***/
 
@@ -171,6 +172,7 @@ int main(int argc, const char *argv[]) {
             detKeypointsModern(keypoints, imgGray, detectorType);
         }
 
+
         // push keypoints and descriptor for current frame to end of data buffer
         (dataBuffer.end() - 1)->keypoints = keypoints;
 
@@ -206,6 +208,22 @@ int main(int argc, const char *argv[]) {
             (dataBuffer.end() - 1)->kptMatches = matches;
 
             cout << "#7 : MATCH KEYPOINT DESCRIPTORS done" << endl;
+
+
+            // visualize matches between current and previous image
+            if (bVisMatching) {
+                cv::Mat matchImg = ((dataBuffer.end() - 1)->cameraImg).clone();
+                cv::drawMatches((dataBuffer.end() - 2)->cameraImg, (dataBuffer.end() - 2)->keypoints,
+                                (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
+                                matches, matchImg,
+                                cv::Scalar::all(-1), cv::Scalar::all(-1),
+                                std::vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
+                std::string windowName = "Matching keypoints between two camera images";
+                cv::namedWindow(windowName, 7);
+                cv::imshow(windowName, matchImg);
+            }
+
 
             /*** TRACK 3D OBJECT BOUNDING BOXES ***/
 

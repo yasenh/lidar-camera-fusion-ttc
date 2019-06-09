@@ -129,6 +129,34 @@ void clusterKptMatchesWithROI(BoundingBox &boundingBox, const std::vector<cv::Ke
             boundingBox.kptMatches.emplace_back(match);
         }
     }
+
+    double sum = 0;
+    std::cout << "Distance of Matches:" << std::endl;
+    // Remove outlier matches based on the euclidean distance between them in relation to all the matches in the bounding box.
+    for (const auto& it : boundingBox.kptMatches) {
+        cv::KeyPoint kpCurr = kptsCurr.at(it.trainIdx);
+        cv::KeyPoint kpPrev = kptsPrev.at(it.queryIdx);
+        double dist = cv::norm(kpCurr.pt - kpPrev.pt);
+        sum += dist;
+
+        std::cout << dist << " ";
+    }
+    std::cout << std::endl;
+    double mean = sum / boundingBox.kptMatches.size();
+
+    constexpr double ratio = 1.5;
+    for (auto it = boundingBox.kptMatches.begin(); it < boundingBox.kptMatches.end();) {
+        cv::KeyPoint kpCurr = kptsCurr.at(it->trainIdx);
+        cv::KeyPoint kpPrev = kptsPrev.at(it->queryIdx);
+        double dist = cv::norm(kpCurr.pt - kpPrev.pt);
+
+        if (dist >= mean * ratio) {
+            boundingBox.kptMatches.erase(it);
+        }
+        else {
+            it++;
+        }
+    }
 }
 
 
@@ -170,9 +198,19 @@ void computeTTCCamera(const std::vector<cv::KeyPoint>& kptsPrev, const std::vect
     }
 
     std::sort(distRatios.begin(), distRatios.end());
+
+    std::cout << "Distance Ratios:" << std::endl;
+    for (const auto& dist : distRatios) {
+        std::cout << dist << " ";
+    }
+    std::cout << std::endl;
+
+
     long medIndex = floor(distRatios.size() / 2.0);
     // compute median dist. ratio to remove outlier influence
     double medDistRatio = distRatios.size() % 2 == 0 ? (distRatios[medIndex - 1] + distRatios[medIndex]) / 2.0 : distRatios[medIndex];
+
+    std::cout << "medDistRatio = " << medDistRatio << std::endl;
 
     double dT = 1 / frameRate;
     TTC = -dT / (1 - medDistRatio);
