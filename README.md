@@ -110,11 +110,11 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-5. Find examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened. If if were possible to locate uniquely identifiable keypoints that could be tracked from one frame to the next, we could use the distance between all keypoints on the vehicle relative to each other to compute a robust estimate of the height ratio in out TTC equation.
+5. Find examples where the TTC estimate of the Lidar sensor does not seem plausible. Describe your observations and provide a sound argumentation why you think this happened. 
 
    
 
-   [Performance Evaluation 1 - LiDAR based TTC](#benchmark)
+   [Performance Evaluation 1 - LiDAR based TTC](#performance evaluation 1 - lidar)
 
    
 
@@ -122,17 +122,44 @@ In this final project, you will implement the missing parts in the schematic. To
 
    
 
-   [Performance Evaluation 2 - Camera based TTC](#benchmark)
+   [Performance Evaluation 2 - Camera based TTC](#performance evaluation 2 - camera)
 
 
 
-## Benchmark
+## Performance Evaluation 1 - LiDAR
 
-#### LiDAR Based TTC
+![LiDAR PE-1](./images/1.png)
 
 
 
-#### Camera Based TTC
+![LiDAR PE-2](./images/2.png)
+
+
+
+|            | LiDAR | Camera |
+| :--------: | :---: | :----: |
+| Scenario 1 | 9.372 | 15.724 |
+| Scenario 2 | 5.541 | 10.283 |
+
+
+
+As we can see from the 2 scenarios above, there still have some noise or outliers even we implement euclidean clustering algorithm. These noise may come from:
+
+- LiDAR and camera is not perfectly synchronized with each other
+- LiDAR itself is not calibrated well
+- The ground is not flatten, which causes some vibration during drive
+
+And this kind of outliers will cause the estimated TTC less than actually TTC, because these outliers have smaller distance in longitudinal direction and we only consider the closest point when we calculate TTC. And the noise from previous frame will also affect TTC estimation in current frame, because we need to calculate the distance difference between two frames.  
+
+There are several ways that we can improve it:
+
+- Instead of only considering 1 point, we can calculate TTC by using multiple point clouds. We can implement DBSCAN clustering algorithm, and take all non-core (edge) points from the largest cluster as input to calculate TTC
+- Fuse with camera, we can remove lots of noise if camera can provide more accurate RoI of leading vehicle's rear bumper
+- Add Kalman filter to tracking TTC by minimalizing covariance
+
+
+
+## Performance Evaluation 2 - Camera
 
 | Detectors\Descriptors | BRISK |  BRIEF  |      ORB      | FREAK | AKAZE | SIFT |
 | :-------------------: | :---: | :-----: | :-----------: | :---: | :---: | :--: |
