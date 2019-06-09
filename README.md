@@ -120,9 +120,9 @@ In this final project, you will implement the missing parts in the schematic. To
 
 6. Run several detector / descriptor combinations and look at the differences in TTC estimation. Find out which methods perform best and also include several examples where camera-based TTC estimation is way off. As with Lidar, describe your observations again and also look into potential reasons.
 
+   
 
-
-​		[Performance Evaluation 2 - Camera based TTC](#benchmark)
+   [Performance Evaluation 2 - Camera based TTC](#benchmark)
 
 
 
