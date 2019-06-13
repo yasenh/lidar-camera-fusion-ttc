@@ -28,8 +28,8 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, const std::vec
         // project LiDAR point into camera
         Y = P_rect_xx * R_rect_xx * RT * X;
         cv::Point pt;
-        pt.x = static_cast<int>(Y.at<double>(0, 0) / Y.at<double>(0, 2)); // pixel coordinates
-        pt.y = static_cast<int>(Y.at<double>(1, 0) / Y.at<double>(0, 2));
+        pt.x = static_cast<int>(Y.at<double>(0, 0) / Y.at<double>(2, 0)); // pixel coordinates
+        pt.y = static_cast<int>(Y.at<double>(1, 0) / Y.at<double>(2, 0));
 
         vector<vector<BoundingBox>::iterator> enclosingBoxes; // pointers to all bounding boxes which enclose the current LiDAR point
         for (auto it2 = boundingBoxes.begin(); it2 != boundingBoxes.end(); ++it2) {
